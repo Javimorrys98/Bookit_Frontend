@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import BookingsLayout from '@/views/bookings/BookingsLayout.vue'
+import AuthAPI from '@/api/AuthAPI'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,7 +15,13 @@ const router = createRouter({
       path: '/bookings',
       name: 'bookings',
       component: BookingsLayout,
+      meta: { requiresAuth: true },
       children: [
+        {
+          path: '',
+          name: 'my-bookings',
+          component: () => import('../views/bookings/MyBookingsView.vue'),
+        },
         {
           path: 'new',
           component: () => import('../views/bookings/NewBookingLayout.vue'),
@@ -46,16 +53,32 @@ const router = createRouter({
         {
           path: 'verify-account/:token',
           name: 'verify-account',
-          component: () => import('../views/auth/VerifyView.vue'),
+          component: () => import('../views/auth/VerifyAccountView.vue'),
         },
         {
           path: 'login',
           name: 'login',
           component: () => import('../views/auth/LoginView.vue'),
-        }
+        },
       ]
     }
   ]
+})
+
+router.beforeEach(async (to, from, next) => {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  if (requiresAuth) {
+    try {
+      await AuthAPI.auth();
+      next();
+    } catch (error) {
+      console.log(error.response.data.msg);
+      next({ name: 'login' });
+    }
+  } else {
+    next()
+  }
+
 })
 
 export default router
