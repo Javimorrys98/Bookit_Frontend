@@ -7,7 +7,7 @@ const userStore = useUserStore();
 <template>
     <div>
         <div class="flex justify-between">
-            <h1 class="text-2xl lg:text-6xl font-black text-white">Booking layout</h1>
+            <h1 class="text-6xl lg:text-6xl font-black text-white">Bookit</h1>
             <div class="flex flex-col space-y-5">
                 <div class="flex gap-2 items-center justify-between">
                     <p class="text-white text-right">{{userStore.getUserName}}</p>
@@ -22,7 +22,7 @@ const userStore = useUserStore();
                         Mis citas
                     </RouterLink>
                     <RouterLink :to="{ name: 'new-booking' }"
-                        class="p-2 text-gray-200 uppercase text-xs font-black rounded-lg bg-blue-700 hover:bg-blue-800">
+                        class="p-2 text-gray-200 uppercase text-xs font-black rounded-lg bg-blue-500 hover:bg-blue-600">
                         Nueva cita
                     </RouterLink>
                 </nav>

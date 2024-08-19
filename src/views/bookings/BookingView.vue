@@ -39,20 +39,19 @@ const disabledDate = (date) => {
             <h3 class="text-3xl font-extrabold text-white">Fecha y hora</h3>
             <div class="lg:flex gap-5 items-start">
                 <div class="w-full lg:w-96 bg-white flex justify-center rounded-lg">
-                    <VueTalwindDatepicker 
-                        v-model="bookingsStore.date" 
-                        i18n="es-mx" 
-                        as-single 
-                        no-input
-                        disable-in-range
-                        :formatter="formatter"
-                        :disable-date="disabledDate" />
+                    <VueTalwindDatepicker v-model="bookingsStore.date" i18n="es-mx" as-single no-input disable-in-range
+                        :formatter="formatter" :disable-date="disabledDate" />
                 </div>
-                <div class="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-5 mt-10 lg:mt-0">
+                <div v-if="bookingsStore.isDateSelected"
+                    class="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-5 mt-10 lg:mt-0">
                     <button v-for="hour in bookingsStore.hours" :key="hour"
-                        class="block text-blue-500 rounded-lg text-xl font-black p-3  hover:bg-blue-300 hover:text-white"
-                        :class="bookingsStore.time === hour ? 'bg-blue-500 text-white' : 'bg-white'"
-                        @click="bookingsStore.time = hour">
+                        :class="[
+                            bookingsStore.time === hour ? 'bg-blue-500 text-white' : 'bg-white', 
+                            bookingsStore.disableTime(hour) ? 
+                                'block text-blue-500 rounded-lg text-xl font-black p-3 disabled:opacity-10' :
+                                'block text-blue-500 rounded-lg text-xl font-black p-3 hover:bg-blue-300 hover:text-white']" 
+                        @click="bookingsStore.time = hour" 
+                        :disabled="bookingsStore.disableTime(hour) ? true : false">
                         {{ hour }}
                     </button>
                 </div>
@@ -60,10 +59,8 @@ const disabledDate = (date) => {
         </div>
 
         <div v-if="bookingsStore.isValidBooking" class="flex justify-end">
-            <button 
-                class="w-full bg-blue-500 p-3 rounded-lg uppercase font-black text-white mt-10"
-                @click="bookingsStore.createBooking"    
-            >
+            <button class="w-full bg-blue-500 p-3 rounded-lg uppercase font-black text-white mt-10"
+                @click="bookingsStore.createBooking">
                 Confirmar reserva
             </button>
         </div>
