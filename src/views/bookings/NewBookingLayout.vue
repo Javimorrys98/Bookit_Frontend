@@ -1,7 +1,14 @@
 <script setup>
+import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { useBookingsStore } from '@/stores/bookings';
 
 const route = useRoute();
+const bookingsStore = useBookingsStore();
+
+onMounted(() => {
+    bookingsStore.clearBookingData();
+});
 </script>
 
 <template>

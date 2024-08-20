@@ -9,7 +9,8 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: HomeView,
+      redirect: { name: 'my-bookings' },
     },
     {
       path: '/bookings',
@@ -37,7 +38,23 @@ const router = createRouter({
               component: () => import('../views/bookings/BookingView.vue'),
             }
           ]
-        }
+        },
+        {
+          path: ':id/edit',
+          component: () => import('../views/bookings/EditBookingLayout.vue'),
+          children: [
+            {
+              path: '',
+              name: 'edit-booking',
+              component: () => import('../views/bookings/ServicesView.vue'),
+            },
+            {
+              path: 'details',
+              name: 'edit-booking-details',
+              component: () => import('../views/bookings/BookingView.vue'),
+            }
+          ]
+        },
       ]
     },
     {

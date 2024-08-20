@@ -1,6 +1,7 @@
 <script setup>
 import { displayDate } from '@/helpers/date';
 import { formatCurrency } from '@/helpers';
+import { useBookingsStore } from '@/stores/bookings';
 
 defineProps({
     booking: {
@@ -8,6 +9,8 @@ defineProps({
         required: true
     }
 })
+
+const bookingsStore = useBookingsStore();
 </script>
 
 <template>
@@ -26,13 +29,15 @@ defineProps({
             Total a pagar: {{ formatCurrency(booking.totalAmount) }}
         </p>
         <div class="flex gap-2 items-center">
-            <button
-                class="bg-blue-500 rounded-lg p-3 text-white text-sm uppercase font-black w-full hover:bg-blue-600"
+            <RouterLink
+                class="bg-blue-500 rounded-lg p-3 text-white text-sm uppercase font-black w-full hover:bg-blue-600 text-center"
+                :to="{ name: 'edit-booking', params: { id: booking._id } }"
             >
                 Editar cita
-            </button>
+            </RouterLink>
             <button
-                class="bg-red-600 rounded-lg p-3 text-white text-sm uppercase font-black w-full hover:bg-red-700"
+                class="bg-red-600 rounded-lg p-3 text-white text-sm uppercase font-black w-full hover:bg-red-700 text-center"
+                @click="bookingsStore.cancelBooking(booking._id)"
             >
                 Cancelar cita
             </button>

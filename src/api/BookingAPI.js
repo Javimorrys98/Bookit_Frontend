@@ -10,4 +10,13 @@ export default {
     getUserBookings(userId) {
         return api.get(`/users/${userId}/bookings`);
     },
+    getById(bookingId) {
+        return api.get(`/bookings/${bookingId}`);
+    },
+    update(bookingId, data) {
+        return api.put(`/bookings/${bookingId}`, data);
+    },
+    delete(bookingId) {
+        return api.delete(`/bookings/${bookingId}`);
+    },
 }

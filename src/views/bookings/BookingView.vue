@@ -60,7 +60,7 @@ const disabledDate = (date) => {
 
         <div v-if="bookingsStore.isValidBooking" class="flex justify-end">
             <button class="w-full bg-blue-500 p-3 rounded-lg uppercase font-black text-white mt-10"
-                @click="bookingsStore.createBooking">
+                @click="bookingsStore.saveBooking">
                 Confirmar reserva
             </button>
         </div>

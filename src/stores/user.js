@@ -45,5 +45,6 @@ export const useUserStore = defineStore('user', () => {
         getUserName,
         loading,
         logout,
+        getUserBookings,
     };
 });

@@ -1,20 +1,23 @@
 import { ref, computed, onMounted, inject, watch } from "vue";
 import { defineStore } from "pinia";
 import { MAXIMUM_SERVICES } from "@/helpers/global";
-import { convertToISO } from "@/helpers/date";
+import { convertToISO, convertToDDMMYYYY } from "@/helpers/date";
 import BookingAPI from "@/api/BookingAPI";
 import { useRouter } from "vue-router";
+import { useUserStore } from "./user";
 
 export const useBookingsStore = defineStore("bookings", () => {
     const toast = inject('toast')
     const router = useRouter();
+    const userStore = useUserStore();
 
+    const bookingId = ref('')
     const services = ref([])
-    const servicesFull = ref(false)
     const date = ref('')
-    const hours = ref([])
     const time = ref('')
-    const bookingByDate = ref([])
+    const servicesFull = ref(false)
+    const bookingsByDate = ref([])
+    const hours = ref([])
 
     onMounted(() => {
         const startHour = 10;
@@ -30,7 +33,15 @@ export const useBookingsStore = defineStore("bookings", () => {
         if (date.value === '') return;
         //Obtenemos las citas cada vez que cambia la fecha
         const { data } = await BookingAPI.getByDate(date.value);
-        bookingByDate.value = data;
+
+        // El booking id solo existe cuando se edita una cita
+        if (bookingId.value) {
+            console.log(data);
+            bookingsByDate.value = data.filter(booking => booking._id !== bookingId.value);
+            time.value = data.filter(booking => booking._id === bookingId.value)[0]?.time;
+        } else {
+            bookingsByDate.value = data;
+        }
     });
 
     function onServiceSelected(service) {
@@ -48,7 +59,7 @@ export const useBookingsStore = defineStore("bookings", () => {
         }
     }
 
-    async function createBooking() {
+    async function saveBooking() {
         const booking = {
             services: services.value.map(service => service._id),
             date: convertToISO(date.value),
@@ -56,17 +67,51 @@ export const useBookingsStore = defineStore("bookings", () => {
             totalAmount: totalAmount.value,
         }
 
-        try {
-            const { data } = await BookingAPI.create(booking);
-            toast.open({
-                message: data.msg,
-                type: 'success',
-            });
-            router.push({ name: 'my-bookings' });
-            clearBookingData();
-        } catch (error) {
-            console.log(error);
+        if (bookingId.value) {
+            try {
+                const { data } = await BookingAPI.update(bookingId.value, booking);
+                toast.open({
+                    message: data.msg,
+                    type: 'success',
+                });
+            } catch (error) {
+                console.log(error);
+            }
+        } else {
+            try {
+                const { data } = await BookingAPI.create(booking);
+                toast.open({
+                    message: data.msg,
+                    type: 'success',
+                });
+            } catch (error) {
+                console.log(error);
+            }
         }
+        
+        clearBookingData();
+        userStore.getUserBookings()
+        router.push({ name: 'my-bookings' });
+    }
+
+    async function cancelBooking(id) {
+        if (confirm('¿Estás seguro de que deseas cancelar esta reserva?')) {
+            try {
+                const { data } = await BookingAPI.delete(id);
+
+                toast.open({
+                    message: data.msg,
+                    type: 'success',
+                });
+            } catch (error) {
+                toast.open({
+                    message: error.response.data.msg,
+                    type: 'error',
+                });
+            }
+        }
+
+        userStore.getUserBookings()
     }
 
     function clearBookingData() {
@@ -74,6 +119,14 @@ export const useBookingsStore = defineStore("bookings", () => {
         servicesFull.value = false;
         date.value = '';
         time.value = '';
+        bookingId.value = '';
+    }
+
+    function setSelectedBooking(booking) {
+        services.value = booking.services;
+        date.value = convertToDDMMYYYY(booking.date);
+        time.value = booking.time;
+        bookingId.value = booking._id;
     }
 
     const isServiceSelected = computed(() => {
@@ -94,13 +147,16 @@ export const useBookingsStore = defineStore("bookings", () => {
 
     const disableTime = computed(() => {
         return (hour) => {
-            return bookingByDate.value.find(booking => booking.time === hour);
+            return bookingsByDate.value.find(booking => booking.time === hour);
         }
     })
 
     return {
         onServiceSelected,
-        createBooking,
+        saveBooking,
+        cancelBooking,
+        setSelectedBooking,
+        clearBookingData,
         isServiceSelected,
         servicesFull,
         services,
