@@ -13,6 +13,19 @@ const router = createRouter({
       redirect: { name: 'my-bookings' },
     },
     {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('../views/admin/AdminLayout.vue'),
+      meta: { requiresAdmin: true },
+      children: [
+        {
+          path: '',
+          name: 'admin-bookings',
+          component: () => import('../views/admin/BookingsView.vue'),
+        }
+      ]
+    },
+    {
       path: '/bookings',
       name: 'bookings',
       component: BookingsLayout,
@@ -77,6 +90,16 @@ const router = createRouter({
           name: 'login',
           component: () => import('../views/auth/LoginView.vue'),
         },
+        {
+          path: 'forgot-password',
+          name: 'forgot-password',
+          component: () => import('../views/auth/ForgotPasswordView.vue'),
+        },
+        {
+          path: 'forgot-password/:token',
+          name: 'new-password',
+          component: () => import('../views/auth/NewPasswordView.vue'),
+        },
       ]
     }
   ]
@@ -86,8 +109,12 @@ router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   if (requiresAuth) {
     try {
-      await AuthAPI.auth();
-      next();
+      const { data } = await AuthAPI.auth();
+      if (data.admin) {
+        next({ name: 'admin-bookings' });
+      } else {
+        next();
+      }
     } catch (error) {
       console.log(error.response.data.msg);
       next({ name: 'login' });
@@ -95,7 +122,20 @@ router.beforeEach(async (to, from, next) => {
   } else {
     next()
   }
+})
 
+router.beforeEach(async (to, from, next) => {
+  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
+  if (requiresAdmin) {
+    try {
+      await AuthAPI.admin();
+      next();
+    } catch (error) {
+      next({ name: 'login' });
+    }
+  } else {
+    next()
+  }
 })
 
 export default router
