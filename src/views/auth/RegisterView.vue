@@ -2,10 +2,16 @@
 import { inject } from 'vue';
 import { reset } from '@formkit/vue';
 import AuthAPI from '@/api/AuthAPI';
+import { useRouter } from 'vue-router';
+import { useLoadingStore } from '@/stores/loading';
 
 const toast = inject('toast');
+const router = useRouter();
+
+const loadingStore = useLoadingStore();
 
 const handleSubmit = async ({password_confirm, ...formData}) => {
+    loadingStore.setLoading(true);
     try {
         const { data } = await AuthAPI.register(formData);
         toast.open({
@@ -13,12 +19,15 @@ const handleSubmit = async ({password_confirm, ...formData}) => {
             message: data.msg
         })
         reset('registerForm');
+        await router.push({ name: 'login' });
     } catch (error) {
         console.log(error);
         toast.open({
             type: 'error',
             message: error.response.data.msg
         })
+    } finally {
+        loadingStore.setLoading(false);
     }
 }
 </script>

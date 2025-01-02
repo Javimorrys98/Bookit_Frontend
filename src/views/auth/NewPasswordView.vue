@@ -2,6 +2,7 @@
 import { onMounted, inject, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AuthAPI from '@/api/AuthAPI';
+import { useLoadingStore } from '@/stores/loading';
 
 const toast = inject('toast');
 const route = useRoute();
@@ -9,6 +10,8 @@ const router = useRouter();
 const { token } = route.params;
 
 const validToken = ref(false);
+
+const loadingStore = useLoadingStore();
 
 onMounted(async () => {
     try {
@@ -23,6 +26,7 @@ onMounted(async () => {
 });
 
 const handleSubmit = async ({ password }) => {
+    loadingStore.setLoading(true);
     try {
         const { data } = await AuthAPI.updatePassword(token, { password });
         toast.open({
@@ -37,6 +41,8 @@ const handleSubmit = async ({ password }) => {
             message: error.response.data.msg,
             type: 'error'
         });
+    } finally {
+        loadingStore.setLoading(false);
     }
 };
 </script>

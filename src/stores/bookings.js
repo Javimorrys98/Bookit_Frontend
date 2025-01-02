@@ -5,11 +5,13 @@ import { convertToISO, convertToDDMMYYYY } from "@/helpers/date";
 import BookingAPI from "@/api/BookingAPI";
 import { useRouter } from "vue-router";
 import { useUserStore } from "./user";
+import { useLoadingStore } from "./loading";
 
 export const useBookingsStore = defineStore("bookings", () => {
     const toast = inject('toast')
     const router = useRouter();
     const userStore = useUserStore();
+    const loadingStore = useLoadingStore();
 
     const bookingId = ref('')
     const services = ref([])
@@ -31,8 +33,12 @@ export const useBookingsStore = defineStore("bookings", () => {
     watch(date, async () => {
         time.value = '';
         if (date.value === '') return;
+        loadingStore.setLoading(true);
+
         //Obtenemos las citas cada vez que cambia la fecha
-        const { data } = await BookingAPI.getByDate(date.value);
+        const { data } = await BookingAPI.getByDate(date.value).finally(() => {
+            loadingStore.setLoading(false);
+        });
 
         // El booking id solo existe cuando se edita una cita
         if (bookingId.value) {
@@ -60,6 +66,8 @@ export const useBookingsStore = defineStore("bookings", () => {
     }
 
     async function saveBooking() {
+        loadingStore.setLoading(true);
+
         const booking = {
             services: services.value.map(service => service._id),
             date: convertToISO(date.value),
@@ -91,12 +99,14 @@ export const useBookingsStore = defineStore("bookings", () => {
         
         clearBookingData();
         userStore.getUserBookings()
-        router.push({ name: 'my-bookings' });
+        await router.push({ name: 'my-bookings' });
+        loadingStore.setLoading(false);
     }
 
     async function cancelBooking(id) {
         if (confirm('¿Estás seguro de que deseas cancelar esta reserva?')) {
             try {
+                loadingStore.setLoading(true);
                 const { data } = await BookingAPI.delete(id);
 
                 toast.open({
@@ -108,6 +118,8 @@ export const useBookingsStore = defineStore("bookings", () => {
                     message: error.response.data.msg,
                     type: 'error',
                 });
+            } finally {
+                loadingStore.setLoading(false);
             }
         }
 

@@ -12,7 +12,7 @@ const userStore = useUserStore();
 
         <p v-if="userStore.loading" class="text-white text-2xl text-center mt-5">Cargando tus citas...</p>
         <div v-else>
-            <p v-if="userStore.noBookings" class="text-white text-2xl text-center mt-5">No tienes citas pendientes.</p>
+            <p v-if="userStore.noBookings" class="text-white text-lg text-center mt-5">No tienes citas pendientes.</p>
             <div v-else class="grid grid-cols-1 gap-5 mt-10">
                 <Booking v-for="booking in userStore.userBookings" :key="booking._id" :booking="booking" />
             </div>

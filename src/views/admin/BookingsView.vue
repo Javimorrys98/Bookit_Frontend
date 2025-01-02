@@ -11,7 +11,7 @@ const userStore = useUserStore();
         
         <p v-if="userStore.loading" class="text-white text-2xl text-center mt-5">Cargando...</p>
         <div v-else>
-            <p v-if="userStore.noBookings">
+            <p v-if="userStore.noBookings" class="text-white text-lg mt-5 text-center">
                 No tienes reservas próximas.
             </p>
             <div v-else class="grid grid-cols-1 gap-5 mt-10">

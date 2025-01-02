@@ -2,21 +2,27 @@
 import { inject } from 'vue';
 import { useRouter } from 'vue-router';
 import AuthAPI from '@/api/AuthAPI';
+import { useLoadingStore } from '@/stores/loading';
 
 const toast = inject('toast');
 const router = useRouter();
 
+const loadingStore = useLoadingStore();
+
 const handleSubmit = async (formData) => {
+    loadingStore.setLoading(true);
     try {
         const { data: { token } } = await AuthAPI.login(formData);
         localStorage.setItem('AUTH_TOKEN', token);
-        router.push({ name: 'my-bookings' });
+        await router.push({ name: 'my-bookings' });
     } catch (error) {
         console.log(error);
         toast.open({
             type: 'error',
             message: error.response.data.msg
         })
+    } finally {
+        loadingStore.setLoading(false);
     }
 }
 </script>

@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import BookingsLayout from '@/views/bookings/BookingsLayout.vue'
 import AuthAPI from '@/api/AuthAPI'
+import { useLoadingStore } from '@/stores/loading'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

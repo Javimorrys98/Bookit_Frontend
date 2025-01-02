@@ -1,12 +1,14 @@
 import { ref, computed, onMounted } from "vue";
 import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
+import { useLoadingStore } from "./loading";
 import AuthAPI from "@/api/AuthAPI";
 import BookingAPI from "@/api/BookingAPI";
 
 export const useUserStore = defineStore('user', () => {
     const router = useRouter();
-    
+    const loadingStore = useLoadingStore();
+
     const user = ref({});
     const userBookings = ref([]);
     const loading = ref(true);
@@ -24,7 +26,10 @@ export const useUserStore = defineStore('user', () => {
     });
 
     async function getUserBookings() {
-        const { data } = await BookingAPI.getUserBookings(user.value._id);
+        loadingStore.setLoading(true);
+        const { data } = await BookingAPI.getUserBookings(user.value._id).finally(() => {
+            loadingStore.setLoading(false);
+        });
         userBookings.value = data;
     }
 

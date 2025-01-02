@@ -3,6 +3,7 @@ import { onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BookingAPI from '@/api/BookingAPI';
 import { useBookingsStore } from '@/stores/bookings';
+import { useLoadingStore } from '@/stores/loading';
 
 const route = useRoute();
 const router = useRouter();
@@ -10,14 +11,18 @@ const router = useRouter();
 const { id } = route.params;
 
 const bookingsStore = useBookingsStore();
+const loadingStore = useLoadingStore();
 
 onMounted( async () => {
     try {
+        loadingStore.setLoading(true);
         const { data } = await BookingAPI.getById(id);
         bookingsStore.setSelectedBooking(data);
     } catch (error) {
         console.log(error);
         router.push({ name: 'my-bookings' });
+    } finally {
+        loadingStore.setLoading(false);
     }
 });
 </script>

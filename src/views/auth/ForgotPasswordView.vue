@@ -2,10 +2,14 @@
 import { inject } from 'vue';
 import { reset } from '@formkit/vue';
 import AuthAPI from '@/api/AuthAPI';
+import { useLoadingStore } from '@/stores/loading';
 
 const toast = inject('toast'); 
 
+const loadingStore = useLoadingStore();
+
 const handleSubmit = async ({email}) => {
+    loadingStore.setLoading(true);
     try {
         const { data } = await AuthAPI.forgotPassword({email});
         toast.open({
@@ -18,6 +22,8 @@ const handleSubmit = async ({email}) => {
             message: error.response.data.msg,
             type: 'error'
         })
+    } finally {
+        loadingStore.setLoading(false);
     }
 }
 </script>

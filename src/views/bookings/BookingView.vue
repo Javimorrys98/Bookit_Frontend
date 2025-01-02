@@ -20,7 +20,7 @@ const disabledDate = (date) => {
 
 <template>
     <div class="space-y-5">
-        <h2 class="text-4xl font-extrabold text-white">Detalles de la cita y resumen.</h2>
+        <h2 class="text-4xl font-extrabold text-white mt-10">Detalles de la cita y resumen.</h2>
         <p class="text-white text-lg">Verifica la información y confirma tu cita.</p>
 
         <h3 class="text-3xl font-extrabold text-white">Servicios:</h3>
